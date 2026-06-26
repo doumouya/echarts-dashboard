@@ -1,0 +1,8 @@
+# Workspace: the pure aggregation engine (`core`) and its wasm binding (`wasm`).
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/wasm"]
+
+[profile.release]
+opt-level = "s"
+lto = true

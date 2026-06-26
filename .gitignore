@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target
+**/target
+
+# wasm-pack output + vendored ECharts (regenerated/refetched by tools/build.sh).
+# The built single-file index.html (which embeds ECharts) IS committed.
+/pkg
+/pkg-node
+/pkg-web
+/dist
+/web/vendor
+
+# local env / OS cruft
+.env
+.env.*
+*.swp
+*~
+.DS_Store

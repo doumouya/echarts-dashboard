@@ -1,0 +1,8 @@
+[package]
+name = "dashboard-core"
+version = "0.1.0"
+edition = "2021"
+description = "Dependency-free CSV + group/aggregate engine that feeds chart series (compiles to wasm)."
+
+# No dependencies — small wasm, and a pure core that sends nothing anywhere.
+[dependencies]
