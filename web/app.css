@@ -1,0 +1,14 @@
+/* Dashboard-specific styles (chrome comes from web-kit components; tokens from web-kit). */
+body { margin: 0; font: var(--font-body); background: var(--surface); color: var(--text); }
+.app-header { display: flex; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-4);
+             border-bottom: var(--border-width) solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: var(--z-sticky); }
+.app-header h1 { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-semibold); }
+.muted { color: var(--text-muted); font-size: var(--text-sm); }
+.spacer { flex: 1; }
+
+#grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr)); gap: var(--space-4); padding: var(--space-4); }
+.grid-span { grid-column: 1 / -1; }
+
+.ctrls { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-3); }
+.ctrls .dc-select select { max-width: 8.5rem; }
+.chart { height: 16rem; width: 100%; }

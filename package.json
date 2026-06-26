@@ -1,0 +1,14 @@
+{
+  "name": "echarts-dashboard-web",
+  "version": "0.1.0",
+  "description": "The TypeScript front-end for echarts-dashboard (built with web-kit).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.1",
+    "typescript": "^5.6.3"
+  }
+}
