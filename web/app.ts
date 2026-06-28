@@ -111,6 +111,10 @@ function addChart(presetAgg?: string): void {
   byId("grid").appendChild(cardNode);
 
   const chart = echarts.init(chartDiv, THEME, { renderer: "canvas" });
+  // Keep the canvas matched to its container: charts are added sequentially (the first inits while
+  // it is briefly the only, full-width card) and the grid also reflows on window resize.
+  const ro = new ResizeObserver(() => chart.resize());
+  ro.observe(chartDiv);
   const render = (): void => {
     const c = Number(cat.value);
     const a = agg.value;
@@ -122,7 +126,7 @@ function addChart(presetAgg?: string): void {
     chart.setOption(buildOption(typ.value, series.labels, series.values, `${what} by ${headers[c] ?? ""}`), true);
   };
   [cat, agg, measure, typ].forEach((s) => s.addEventListener("change", render));
-  removeBtn.addEventListener("click", () => { chart.dispose(); cardNode.remove(); });
+  removeBtn.addEventListener("click", () => { ro.disconnect(); chart.dispose(); cardNode.remove(); });
   render();
 }
 

@@ -1336,6 +1336,8 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     const cardNode = card([ctrls, chartDiv]);
     byId("grid").appendChild(cardNode);
     const chart = echarts.init(chartDiv, THEME, { renderer: "canvas" });
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(chartDiv);
     const render = () => {
       const c = Number(cat.value);
       const a = agg.value;
@@ -1348,6 +1350,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     };
     [cat, agg, measure, typ].forEach((s) => s.addEventListener("change", render));
     removeBtn.addEventListener("click", () => {
+      ro.disconnect();
       chart.dispose();
       cardNode.remove();
     });
