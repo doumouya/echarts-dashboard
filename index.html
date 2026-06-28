@@ -1327,6 +1327,24 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     });
     render();
   }
+  var SAMPLE_CSV = `id,name,city,region,revenue_eur,orders,active,signup_date
+1,Marie Dupont,Paris,\xCEle-de-France,12500,8,true,2024-03-14
+2,Liam O'Brien,Rennes,Bretagne,8750,5,false,2023-11-02
+3,Sofia Rossi,Toulouse,Occitanie,1300,2,true,2024-02-28
+4,Hans Becker,Strasbourg,Grand Est,23400,15,true,2024-01-09
+5,Am\xE9lie Laurent,Paris,\xCEle-de-France,5600,4,false,2023-07-07
+6,Lucas Martin,Nantes,Pays de la Loire,940,1,true,2024-09-19
+7,In\xE8s Girard,Lyon,Auvergne-Rh\xF4ne-Alpes,15250,11,true,2024-01-11
+8,Chen Wei,Paris,\xCEle-de-France,3420,3,false,2024-05-05
+9,Olivia Brown,Bordeaux,Nouvelle-Aquitaine,6300,5,true,2023-08-23
+10,L\xE9a Moreau,Rennes,Bretagne,7800,6,true,2024-04-30
+11,Thomas Petit,Marseille,Provence-Alpes-C\xF4te d'Azur,19999,14,false,2023-12-12
+12,Camille Roux,Toulouse,Occitanie,2150,2,true,2024-06-08
+13,Noah Garcia,Lille,Hauts-de-France,6300,5,true,2024-02-17
+14,Emma Fontaine,Paris,\xCEle-de-France,11100,9,false,2024-03-22
+15,Hugo Lefebvre,Nantes,Pays de la Loire,4500,3,true,2023-10-21
+16,Gabriel Lopez,Bordeaux,Nouvelle-Aquitaine,1750,1,false,2024-07-29
+`;
   function openCsv(text) {
     data = WasmData.fromCsv(text);
     headers = data.headers();
@@ -1342,7 +1360,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         class: "grid-span",
         glyph: "\u25A6",
         lead: "Open a CSV \u2014 it stays on your device.",
-        description: "Group, aggregate, and chart it. All computed in your browser; nothing is uploaded."
+        description: "Group, aggregate, and chart it. All computed in your browser; nothing is uploaded. No file handy? Click \u201CLoad sample\u201D to chart a demo dataset."
       })
     );
   }
@@ -1363,6 +1381,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       el("span", { class: "muted" }, "your data never leaves this page"),
       el("span", { class: "spacer" }),
       button("+ Chart", { onClick: addChart }),
+      button("Load sample", { onClick: () => openCsv(SAMPLE_CSV) }),
       button("Open CSV", { variant: "primary", onClick: () => file.click() }),
       file
     );

@@ -98,6 +98,27 @@ function addChart(): void {
   render();
 }
 
+// A synthetic French clients dataset — a categorical Région plus numeric revenue/orders, so
+// group-by + aggregate produces a real chart on first load. Synthetic on purpose: no real data ships here.
+const SAMPLE_CSV = `id,name,city,region,revenue_eur,orders,active,signup_date
+1,Marie Dupont,Paris,Île-de-France,12500,8,true,2024-03-14
+2,Liam O'Brien,Rennes,Bretagne,8750,5,false,2023-11-02
+3,Sofia Rossi,Toulouse,Occitanie,1300,2,true,2024-02-28
+4,Hans Becker,Strasbourg,Grand Est,23400,15,true,2024-01-09
+5,Amélie Laurent,Paris,Île-de-France,5600,4,false,2023-07-07
+6,Lucas Martin,Nantes,Pays de la Loire,940,1,true,2024-09-19
+7,Inès Girard,Lyon,Auvergne-Rhône-Alpes,15250,11,true,2024-01-11
+8,Chen Wei,Paris,Île-de-France,3420,3,false,2024-05-05
+9,Olivia Brown,Bordeaux,Nouvelle-Aquitaine,6300,5,true,2023-08-23
+10,Léa Moreau,Rennes,Bretagne,7800,6,true,2024-04-30
+11,Thomas Petit,Marseille,Provence-Alpes-Côte d'Azur,19999,14,false,2023-12-12
+12,Camille Roux,Toulouse,Occitanie,2150,2,true,2024-06-08
+13,Noah Garcia,Lille,Hauts-de-France,6300,5,true,2024-02-17
+14,Emma Fontaine,Paris,Île-de-France,11100,9,false,2024-03-22
+15,Hugo Lefebvre,Nantes,Pays de la Loire,4500,3,true,2023-10-21
+16,Gabriel Lopez,Bordeaux,Nouvelle-Aquitaine,1750,1,false,2024-07-29
+`;
+
 function openCsv(text: string): void {
   data = WasmData.fromCsv(text);
   headers = data.headers();
@@ -114,7 +135,7 @@ function showHint(): void {
       class: "grid-span",
       glyph: "▦",
       lead: "Open a CSV — it stays on your device.",
-      description: "Group, aggregate, and chart it. All computed in your browser; nothing is uploaded.",
+      description: "Group, aggregate, and chart it. All computed in your browser; nothing is uploaded. No file handy? Click “Load sample” to chart a demo dataset.",
     }),
   );
 }
@@ -138,6 +159,7 @@ function buildChrome(): void {
     el("span", { class: "muted" }, "your data never leaves this page"),
     el("span", { class: "spacer" }),
     button("+ Chart", { onClick: addChart }),
+    button("Load sample", { onClick: () => openCsv(SAMPLE_CSV) }),
     button("Open CSV", { variant: "primary", onClick: () => file.click() }),
     file,
   );
