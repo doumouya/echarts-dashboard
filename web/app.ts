@@ -61,15 +61,43 @@ function buildOption(type: string, labels: string[], values: number[], title: st
   };
 }
 
-function addChart(): void {
+/** A sensible default "group by": a real categorical dimension. Prefer a column with ≥3 distinct
+ *  values (over a 2-value flag like a boolean) and, among those, the fewest groups for a clean
+ *  chart — which also skips unique keys like a name. Falls back to the first Text column. */
+function defaultCategory(): number {
+  const texts = kinds.flatMap((k, i) => (k === "Text" ? [i] : []));
+  if (!texts.length) return 0;
+  let best = texts[0]!;
+  let bestGroup = 2; // 0 = proper categorical (≥3 distinct), 1 = low-cardinality flag
+  let bestN = Infinity; // distinct count (fewer = cleaner chart)
+  for (const i of texts) {
+    const n = data!.aggregate(i, -1, "count").labels.length; // distinct groups
+    const group = n >= 3 ? 0 : 1;
+    if (group < bestGroup || (group === bestGroup && n < bestN)) { bestGroup = group; bestN = n; best = i; }
+  }
+  return best;
+}
+/** A sensible default measure: the first numeric column that isn't an identifier (an `id` /
+ *  `*_id` column, or the leading column). Falls back to the first numeric, or -1 if none. */
+function defaultMeasure(): number {
+  const nums = kinds.flatMap((k, i) => (k === "Number" ? [i] : []));
+  const real = nums.find((i) => {
+    const h = (headers[i] ?? "").toLowerCase();
+    return i !== 0 && h !== "id" && !h.endsWith("_id");
+  });
+  return real ?? (nums[0] ?? -1);
+}
+
+function addChart(presetAgg?: string): void {
   if (!data) return;
   const id = "chart" + seq++;
-  const firstText = Math.max(0, kinds.indexOf("Text"));
-  const firstNum = kinds.indexOf("Number");
+  const catIdx = defaultCategory();
+  const measIdx = defaultMeasure();
+  const defAgg = presetAgg ?? (measIdx >= 0 ? "sum" : "count");
 
-  const catField = select({ size: "sm", attrs: { title: "group by" }, children: optionEls(firstText, false) });
-  const aggField = select({ size: "sm", attrs: { title: "aggregate" }, children: ["count", "sum", "avg", "min", "max"].map((a) => el("option", { value: a }, a)) });
-  const measureField = select({ size: "sm", attrs: { title: "measure" }, children: optionEls(firstNum < 0 ? 0 : firstNum, true) });
+  const catField = select({ size: "sm", attrs: { title: "group by" }, children: optionEls(catIdx, false) });
+  const aggField = select({ size: "sm", attrs: { title: "aggregate" }, children: ["count", "sum", "avg", "min", "max"].map((a) => el("option", { value: a, selected: a === defAgg }, a)) });
+  const measureField = select({ size: "sm", attrs: { title: "measure" }, children: optionEls(measIdx < 0 ? 0 : measIdx, true) });
   const typeField = select({ size: "sm", attrs: { title: "chart" }, children: ["bar", "line", "pie"].map((t) => el("option", { value: t }, t)) });
   const cat = selectEl(catField);
   const agg = selectEl(aggField);
@@ -124,8 +152,8 @@ function openCsv(text: string): void {
   headers = data.headers();
   kinds = data.kinds();
   byId("grid").replaceChildren();
-  addChart(); // one chart to start
-  if (kinds.includes("Number")) addChart();
+  addChart(); // sum of the measure by the chosen dimension
+  if (kinds.includes("Number")) addChart("count"); // a complementary view: counts by that dimension
 }
 
 function showHint(): void {
@@ -158,7 +186,7 @@ function buildChrome(): void {
     el("h1", {}, "echarts-dashboard"),
     el("span", { class: "muted" }, "your data never leaves this page"),
     el("span", { class: "spacer" }),
-    button("+ Chart", { onClick: addChart }),
+    button("+ Chart", { onClick: () => addChart() }),
     button("Load sample", { onClick: () => openCsv(SAMPLE_CSV) }),
     button("Open CSV", { variant: "primary", onClick: () => file.click() }),
     file,

@@ -1291,14 +1291,40 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       series: [{ type, data: values, smooth: type === "line" }]
     };
   }
-  function addChart() {
+  function defaultCategory() {
+    const texts = kinds.flatMap((k, i) => k === "Text" ? [i] : []);
+    if (!texts.length) return 0;
+    let best = texts[0];
+    let bestGroup = 2;
+    let bestN = Infinity;
+    for (const i of texts) {
+      const n = data.aggregate(i, -1, "count").labels.length;
+      const group = n >= 3 ? 0 : 1;
+      if (group < bestGroup || group === bestGroup && n < bestN) {
+        bestGroup = group;
+        bestN = n;
+        best = i;
+      }
+    }
+    return best;
+  }
+  function defaultMeasure() {
+    const nums = kinds.flatMap((k, i) => k === "Number" ? [i] : []);
+    const real = nums.find((i) => {
+      const h = (headers[i] ?? "").toLowerCase();
+      return i !== 0 && h !== "id" && !h.endsWith("_id");
+    });
+    return real ?? (nums[0] ?? -1);
+  }
+  function addChart(presetAgg) {
     if (!data) return;
     const id = "chart" + seq++;
-    const firstText = Math.max(0, kinds.indexOf("Text"));
-    const firstNum = kinds.indexOf("Number");
-    const catField = select({ size: "sm", attrs: { title: "group by" }, children: optionEls(firstText, false) });
-    const aggField = select({ size: "sm", attrs: { title: "aggregate" }, children: ["count", "sum", "avg", "min", "max"].map((a) => el("option", { value: a }, a)) });
-    const measureField = select({ size: "sm", attrs: { title: "measure" }, children: optionEls(firstNum < 0 ? 0 : firstNum, true) });
+    const catIdx = defaultCategory();
+    const measIdx = defaultMeasure();
+    const defAgg = presetAgg ?? (measIdx >= 0 ? "sum" : "count");
+    const catField = select({ size: "sm", attrs: { title: "group by" }, children: optionEls(catIdx, false) });
+    const aggField = select({ size: "sm", attrs: { title: "aggregate" }, children: ["count", "sum", "avg", "min", "max"].map((a) => el("option", { value: a, selected: a === defAgg }, a)) });
+    const measureField = select({ size: "sm", attrs: { title: "measure" }, children: optionEls(measIdx < 0 ? 0 : measIdx, true) });
     const typeField = select({ size: "sm", attrs: { title: "chart" }, children: ["bar", "line", "pie"].map((t) => el("option", { value: t }, t)) });
     const cat = selectEl(catField);
     const agg = selectEl(aggField);
@@ -1351,7 +1377,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     kinds = data.kinds();
     byId("grid").replaceChildren();
     addChart();
-    if (kinds.includes("Number")) addChart();
+    if (kinds.includes("Number")) addChart("count");
   }
   function showHint() {
     byId("grid").replaceChildren(
@@ -1380,7 +1406,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       el("h1", {}, "echarts-dashboard"),
       el("span", { class: "muted" }, "your data never leaves this page"),
       el("span", { class: "spacer" }),
-      button("+ Chart", { onClick: addChart }),
+      button("+ Chart", { onClick: () => addChart() }),
       button("Load sample", { onClick: () => openCsv(SAMPLE_CSV) }),
       button("Open CSV", { variant: "primary", onClick: () => file.click() }),
       file
